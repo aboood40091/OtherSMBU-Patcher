@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Settings:
+        SARCPadding: Must be an integer. Default: 0x4000
+        File:
+            Name: Name of the dds file, with ".dds" at the end. Must be specified!
+            BFLIMName: The name of the generated BFLIM with ".bflim" at the end. If not specified, "Name" will be used.
+            TileMode: value can be between 0-16. Default: 4
+            Swizzle: value can be between 0-7. Default: 0
+            SRGB: True: Texture will be saved as SRGB / False: Texture won't be saved as SRGB.
+-->
+<Settings></Settings>
