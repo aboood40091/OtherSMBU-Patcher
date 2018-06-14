@@ -100,3 +100,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Other stuff
+Files/Layouts/
+Files/Other/
+Files/Sound/
+Files/Sprites/
+Files/Stage/
+*.zip

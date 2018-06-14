@@ -148,32 +148,51 @@ def writeFLIM(f, tileMode, swizzle_, SRGB):
             warn_color(f)
 
     elif format_ == 5:
-        if compSel != [0, 1, 2, 5]:
-            warn_color(f)
+        if compSel != [2, 1, 0, 5]:
+            if compSel == [0, 1, 2, 5]:
+                # Swap R and B
+                data = dds.form_conv.swapRB_16bpp(data, 'rgb565')
+
+            else:
+                warn_color(f)
 
     elif format_ == 6:
         if compSel != [0, 1, 2, 5]:
             if compSel == [2, 1, 0, 5]:
                 # Swap R and B
-                data = dds.form_conv.swapRB_RGBA8(data)
+                data = dds.form_conv.swapRB_32bpp(data, 'rgba8')
 
             else:
                 warn_color(f)
 
-    elif format_ in [7, 8]:
+    elif format_ == 7:
         if compSel != [0, 1, 2, 3]:
-            warn_color(f)
+            if compSel == [2, 1, 0, 3]:
+                # Swap R and B
+                data = dds.form_conv.swapRB_16bpp(data, 'rgb5a1')
+
+            else:
+                warn_color(f)
+
+    elif format_ == 8:
+        if compSel != [2, 1, 0, 3]:
+            if compSel == [0, 1, 2, 3]:
+                # Swap R and B
+                data = dds.form_conv.swapRB_16bpp(data, 'argb4')
+
+            else:
+                warn_color(f)
 
     elif format_ in [9, 0x14, 0x18]:
         if compSel != [0, 1, 2, 3]:
             if compSel == [2, 1, 0, 3]:
                 if format_ == 0x18:
                     # Swap R and B
-                    data = dds.form_conv.swapRB_RGB10A2(data)
+                    data = dds.form_conv.swapRB_32bpp(data, 'bgr10a2')
 
                 else:
                     # Swap R and B
-                    data = dds.form_conv.swapRB_RGBA8(data)
+                    data = dds.form_conv.swapRB_32bpp(data, 'rgba8')
 
             else:
                 warn_color(f)
