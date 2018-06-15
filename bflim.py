@@ -224,7 +224,7 @@ def writeFLIM(f, tileMode, swizzle_, SRGB):
                                     surfOut.pitch, surfOut.bpp, data)
 
     # Get the alignment value
-    alignment = 512 * (surfOut.bpp >> 3)
+    alignment = surfOut.baseAlign
 
     # Pack the file header
     head_struct = FLIMHeader()
