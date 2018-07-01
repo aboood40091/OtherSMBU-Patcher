@@ -28,7 +28,7 @@ from xml.etree import ElementTree as etree
 
 from bytes import bytes_to_string
 import globals
-import SARC as SarcLib
+import SarcLib
 from yaz0 import decompressLIBYAZ0 as DecompYaz0
 
 
@@ -285,4 +285,4 @@ class Level:
         for file in self.szsData:
             arc.addFile(SarcLib.File(file, self.szsData[file]))
 
-        return arc.save(0x2000)
+        return arc.save()

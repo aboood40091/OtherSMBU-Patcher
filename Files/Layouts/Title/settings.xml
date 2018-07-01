@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <!-- Settings:
-        SARCPadding: Must be an integer. Default: 0x4000
-        File:
+        FileX:
             Name: Name of the dds file, with ".dds" at the end. Must be specified!
             BFLIMName: The name of the generated BFLIM with ".bflim" at the end. If not specified, "Name" will be used.
             TileMode: value can be between 0-16. Default: 4

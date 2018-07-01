@@ -47,7 +47,7 @@ else:
 
 from bflim import writeFLIM
 from level import Level
-import SARC as SarcLib
+import SarcLib
 from xmltodict import XmlToDict
 
 if globals.cython_available:
@@ -132,7 +132,6 @@ def patchLayouts():
             if not os.path.isfile(os.path.join(globals.mod_path, 'Layouts/%s/settings.xml' % layout)):
                 continue
 
-            sarcpadding = globals.Layouts[layout]
             settings = XmlToDict(os.path.join(globals.mod_path, 'Layouts/%s/settings.xml' % layout))
 
             if not settings:
@@ -141,10 +140,7 @@ def patchLayouts():
             filesettings = []
             for setting in settings:
                 if settings[setting]:
-                    if setting == "SARCPadding":
-                        sarcpadding = int(settings[setting], 0)
-
-                    elif setting[:4] == "File":
+                    if setting[:4] == "File":
                         filesettings.append(settings[setting])
 
             if not filesettings:
@@ -263,7 +259,7 @@ def patchLayouts():
                     print("Something went wrong while adding %s!" % bflimname)
 
             with open(os.path.join(globals.patchpath, 'content/Common/layout/%s.sarc' % layout), "wb+") as out:
-                out.write(arc.save(sarcpadding))
+                out.write(arc.save())
 
             print('\nCompressing: %s.szs' % layout)
 
