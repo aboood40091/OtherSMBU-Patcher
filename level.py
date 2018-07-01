@@ -285,4 +285,4 @@ class Level:
         for file in self.szsData:
             arc.addFile(SarcLib.File(file, self.szsData[file]))
 
-        return arc.save()
+        return arc.save()[0]

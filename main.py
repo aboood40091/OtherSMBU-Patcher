@@ -259,7 +259,7 @@ def patchLayouts():
                     print("Something went wrong while adding %s!" % bflimname)
 
             with open(os.path.join(globals.patchpath, 'content/Common/layout/%s.sarc' % layout), "wb+") as out:
-                out.write(arc.save())
+                out.write(arc.save()[0])
 
             print('\nCompressing: %s.szs' % layout)
 
