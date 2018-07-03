@@ -90,16 +90,16 @@ def decompressWSZST(inb):
 
     if platform.system() == 'Windows':
         os.chdir(globals.curr_path + '/Tools')
-        subprocess.call('wszst.exe COMPRESS "' + inf + '" --dest "' + outf + '"', creationflags=0x8)
+        subprocess.call('wszst.exe DECOMPRESS "' + inf + '" --dest "' + outf + '"', creationflags=0x8)
 
     elif platform.system() == 'Linux':
         os.chdir(globals.curr_path + '/linuxTools')
         os.system('chmod +x ./wszst_linux.elf')
-        os.system('./wszst_linux.elf COMPRESS "' + inf + '" --dest "' + outf + '"')
+        os.system('./wszst_linux.elf DECOMPRESS "' + inf + '" --dest "' + outf + '"')
 
     else:
         os.chdir(globals.curr_path + '/macTools')
-        os.system('"' + globals.curr_path + '/macTools/wszst_mac" COMPRESS "' + inf + '" --dest "' + outf + '"')
+        os.system('"' + globals.curr_path + '/macTools/wszst_mac" DECOMPRESS "' + inf + '" --dest "' + outf + '"')
 
     os.remove(inf)
     os.chdir(globals.curr_path)
