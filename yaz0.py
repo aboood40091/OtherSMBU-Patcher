@@ -36,7 +36,6 @@ if globals.cython_available:
         pass
 
     else:
-        del libyaz0
         globals.libyaz0_available = True
 
 
