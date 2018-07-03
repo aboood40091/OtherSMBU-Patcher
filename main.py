@@ -50,13 +50,8 @@ from level import Level
 import SarcLib
 from xmltodict import XmlToDict
 
-if globals.cython_available:
-    from yaz0 import compressLIBYAZ0 as CompYaz0
-    from yaz0 import decompressLIBYAZ0 as DecompYaz0
-
-else:
-    from yaz0 import compressWSZST as CompYaz0
-    from yaz0 import decompressWSZST as DecompYaz0
+from yaz0 import determineCompressionMethod
+CompYaz0, DecompYaz0 = determineCompressionMethod()
 
 
 def createPatchFolder():
@@ -399,6 +394,7 @@ def main():
         sys.exit(1)
 
     if not os.path.isdir(globals.gamepath):
+        print("Folder doesn't exist!")
         sys.exit(1)
 
     # Step 1: Create the Patch folder

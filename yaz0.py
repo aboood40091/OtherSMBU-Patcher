@@ -26,7 +26,24 @@ import platform
 import subprocess
 
 import globals
-from libyaz0 import decompress, compress
+
+try:
+    import libyaz0
+
+except:
+    pass
+
+else:
+    del libyaz0
+    globals.libyaz0_available = True
+
+
+def determineCompressionMethod():
+    if globals.cython_available and globals.libyaz0_available:
+        return compressLIBYAZ0, decompressLIBYAZ0
+
+    else:
+        return compressWSZST, decompressWSZST
 
 
 def compressWSZST(inf, outf):
