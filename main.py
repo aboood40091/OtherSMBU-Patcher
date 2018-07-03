@@ -89,11 +89,12 @@ def packLevels():
         os.mkdir(os.path.join(globals.patchpath, 'content/Common/course_res_pack'))
 
     for f in os.listdir(os.path.join(globals.mod_path, 'Stage')):
-        if os.path.isfile(os.path.join(globals.mod_path, 'Stage/' + f)):
+        fpath = os.path.join(globals.mod_path, 'Stage/' + f)
+        if os.path.isfile(fpath) and f[-5:] == ".sarc":
             print('\nPacking: ' + f)
 
             level = Level(f)
-            with open(os.path.join(globals.mod_path, 'Stage/' + f), "rb") as inf:
+            with open(fpath, "rb") as inf:
                 level.load(inf.read())
 
             levelData = level.save()
