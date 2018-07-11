@@ -172,10 +172,10 @@ def patchLayouts():
 
             for setting in settings:
                 if settings[setting]:
-                    if setting[:4] == "Img":
+                    if setting[:3] == "Img":
                         imgsSettings.append(settings[setting])
 
-                    elif setting[:4] == "Lan":
+                    elif setting[:3] == "Lan":
                         if "Name" not in settings[setting]:
                             continue
 
@@ -189,7 +189,7 @@ def patchLayouts():
 
                         lans.append(name)
 
-                    elif setting[:4] == "Lyt":
+                    elif setting[:3] == "Lyt":
                         if "Name" not in settings[setting]:
                             continue
 
