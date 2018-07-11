@@ -116,6 +116,39 @@ def packLevels():
             os.remove(os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + f))
 
 
+def addFileToLayout(arc, folderName, name, data):
+    fileAdded = False
+    for folder in arc.contents:
+        if isinstance(folder, SarcLib.Folder) and folder.name == "lyt_root":
+            for lytFolder in folder.contents:
+                if isinstance(lytFolder, SarcLib.Folder) and lytFolder.name == folderName:
+                    for file in lytFolder.contents:
+                        if isinstance(file, SarcLib.File) and file.name == name:
+                            lytFolder.removeFile(file)
+                            break
+
+                    file = SarcLib.File()
+                    file.name = name
+                    file.data = data
+
+                    lytFolder.addFile(file)
+                    fileAdded = True
+
+                if fileAdded:
+                    break
+
+        if fileAdded:
+            break
+
+    if fileAdded:
+        print("Added: %s" % name)
+
+    else:
+        print("Something went wrong while adding %s!" % name)
+
+    return arc
+
+
 def patchLayouts():
     """
     Patch all the layouts
@@ -133,34 +166,65 @@ def patchLayouts():
             if not settings:
                 continue
 
-            filesettings = []
+            imgsSettings = []
+            lans = []
+            lyts = []
+
             for setting in settings:
                 if settings[setting]:
-                    if setting[:4] == "File":
-                        filesettings.append(settings[setting])
+                    if setting[:4] == "Img":
+                        imgsSettings.append(settings[setting])
 
-            if not filesettings:
+                    elif setting[:4] == "Lan":
+                        if "Name" not in settings[setting]:
+                            continue
+
+                        name = settings[setting]["Name"]
+
+                        if not name.endswith(".bflan"):
+                            continue
+
+                        elif not os.path.isfile(os.path.join(globals.mod_path, 'Layouts/%s/%s' % (layout, name))):
+                            continue
+
+                        lans.append(name)
+
+                    elif setting[:4] == "Lyt":
+                        if "Name" not in settings[setting]:
+                            continue
+
+                        name = settings[setting]["Name"]
+
+                        if not name.endswith(".bflyt"):
+                            continue
+
+                        elif not os.path.isfile(os.path.join(globals.mod_path, 'Layouts/%s/%s' % (layout, name))):
+                            continue
+
+                        lyts.append(name)
+
+            if not (imgsSettings or lans or lyts):
                 continue
 
-            files = {}
-            for filesetting in filesettings:
+            imgs = {}
+            for imgSettings in imgsSettings:
                 name = ""
                 bflimname = ""
                 tileMode = 4
                 swizzle = 0
                 SRGB = "False"
 
-                for setting in filesetting:
+                for setting in imgSettings:
                     if setting == "Name":
-                        name = filesetting[setting]
+                        name = imgSettings[setting]
 
                     elif setting == "BFLIMName":
-                        bflimname = filesetting[setting]
+                        bflimname = imgSettings[setting]
 
-                    elif filesetting[setting]:
+                    elif imgSettings[setting]:
                         if setting == "TileMode":
                             try:
-                                tileMode = int(filesetting[setting], 0)
+                                tileMode = int(imgSettings[setting], 0)
 
                             except ValueError:
                                 tileMode = 4
@@ -171,7 +235,7 @@ def patchLayouts():
 
                         elif setting == "Swizzle":
                             try:
-                                swizzle = int(filesetting[setting], 0)
+                                swizzle = int(imgSettings[setting], 0)
 
                             except ValueError:
                                 swizzle = 0
@@ -181,7 +245,7 @@ def patchLayouts():
                                     swizzle = 0
 
                         elif setting == "SRGB":
-                            SRGB = filesetting[setting]
+                            SRGB = imgSettings[setting]
                             if SRGB not in ["True", "False"]:
                                 SRGB = "False"
 
@@ -207,52 +271,41 @@ def patchLayouts():
                     print("Something went wrong while converting %s to BFLIM!" % name)
                     continue
 
-                files[name] = {
+                imgs[name] = {
                     "BFLIMName": bflimname,
                     "Data": data,
                 }
 
-            if not files:
-                continue
-
             print("\nPatching: %s.szs\n" % layout)
 
-            with open(os.path.join(globals.gamepath, 'Common/layout/%s.szs' % layout), 'rb') as inf:
-                inb = inf.read()
+            szsname = os.path.join(globals.gamepath, 'Common/layout/%s.szs' % layout)
+
+            if not os.path.isfile(szsname):
+                print('Something went wrong while reading %s.szs!' % layout)
+                continue
+
+            else:
+                with open(szsname, 'rb') as inf:
+                    inb = inf.read()
 
             arc = SarcLib.SARC_Archive(DecompYaz0(inb))
-            for name in files:
-                bflimname = files[name]["BFLIMName"]
-                data = files[name]["Data"]
+            for name in imgs:
+                bflimname = imgs[name]["BFLIMName"]
+                data = imgs[name]["Data"]
 
-                fileAdded = False
-                for folder in arc.contents:
-                    if isinstance(folder, SarcLib.Folder) and folder.name == "lyt_root":
-                        for lytFolder in folder.contents:
-                            if isinstance(lytFolder, SarcLib.Folder) and lytFolder.name == "timg":
-                                for file in lytFolder.contents:
-                                    if isinstance(file, SarcLib.File) and file.name == bflimname:
-                                        lytFolder.removeFile(file)
-                                        break
+                arc = addFileToLayout(arc, "timg", bflimname, data)
 
-                                file = SarcLib.File()
-                                file.name = bflimname
-                                file.data = data
+            for name in lans:
+                with open(os.path.join(globals.mod_path, 'Layouts/%s/%s' % (layout, name)), "rb") as inf:
+                    data = inf.read()
 
-                                lytFolder.addFile(file)
-                                fileAdded = True
+                arc = addFileToLayout(arc, "anim", name, data)
 
-                            if fileAdded:
-                                break
+            for name in lyts:
+                with open(os.path.join(globals.mod_path, 'Layouts/%s/%s' % (layout, name)), "rb") as inf:
+                    data = inf.read()
 
-                    if fileAdded:
-                        break
-
-                if fileAdded:
-                    print("Added: %s" % bflimname)
-
-                else:
-                    print("Something went wrong while adding %s!" % bflimname)
+                arc = addFileToLayout(arc, "blyt", name, data)
 
             with open(os.path.join(globals.patchpath, 'content/Common/layout/%s.sarc' % layout), "wb+") as out:
                 out.write(arc.save()[0])
@@ -263,7 +316,7 @@ def patchLayouts():
                     os.path.join(globals.patchpath, 'content/Common/layout/%s.sarc' % layout),
                     os.path.join(globals.patchpath, 'content/Common/layout/%s.szs' % layout),
             ):
-                print('Something went wrong while compressing %s.szs!' % f)
+                print('Something went wrong while compressing %s.szs!' % layout)
 
             else:
                 print('Patched: %s.szs' % layout)
