@@ -26,6 +26,7 @@ import platform
 import shutil
 import struct
 import sys
+from zipfile import ZipFile as zf
 
 if platform.system() not in ['Windows', 'Linux', 'Darwin']:
     raise NotImplementedError("Unsupported platform!")
@@ -85,35 +86,42 @@ def packLevels():
 
     for f in os.listdir(os.path.join(globals.mod_path, 'Stage')):
         fpath = os.path.join(globals.mod_path, 'Stage/' + f)
-        if os.path.isfile(fpath) and f[-5:] == ".sarc":
-            print('\nPacking: ' + f)
+        if os.path.isfile(fpath) and f[-4:] == ".zip":
+            with zf(fpath) as lvlZip:
+                files = {name: lvlZip.read(name) for name in lvlZip.namelist()}
 
-            level = Level(f)
-            with open(fpath, "rb") as inf:
-                level.load(inf.read())
+            lvlName = f[:-4]
+
+            if lvlName not in files:
+                continue
+
+            print('\nPacking: ' + lvlName)
+
+            level = Level(lvlName)
+            if not level.load(files):
+                print('%s is not a valid level archive!' % f)
 
             levelData = level.save()
 
             if not levelData:
-                print('Something went wrong while packing %s!' % f)
+                print('Something went wrong while packing %s!' % lvlName)
 
             else:
-                with open(os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + f), "wb+") as out:
+                with open(os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + lvlName), "wb+") as out:
                     out.write(levelData)
 
-            print('Compressing: ' + f)
+            print('Compressing: ' + lvlName)
 
             if not CompYaz0(
-                    os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + f),
-                    os.path.join(globals.patchpath,
-                                 'content/Common/course_res_pack/%s.szs' % ''.join(f.split('.sarc')[:-1])),
+                    os.path.join(globals.patchpath, 'content/Common/course_res_pack/'+ lvlName),
+                    os.path.join(globals.patchpath, 'content/Common/course_res_pack/%s.szs' % lvlName),
             ):
-                print('Something went wrong while compressing %s!' % f)
+                print('Something went wrong while compressing %s!' % lvlName)
 
             else:
-                print('Packed: ' + f)
+                print('Packed: ' + lvlName)
 
-            os.remove(os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + f))
+            os.remove(os.path.join(globals.patchpath, 'content/Common/course_res_pack/' + lvlName))
 
 
 def addFileToLayout(arc, folderName, name, data):
@@ -332,7 +340,6 @@ def patchBFSAR():
         os.mkdir(os.path.join(globals.patchpath, 'content/CAFE/sound'))
 
     fsar = os.path.join(globals.gamepath, 'CAFE/sound/cafe_redpro_sound.bfsar')
-
     if not os.path.isfile(fsar):
         print("\n\"cafe_redpro_sound.bfsar\" not found!")
         print("Skipping patching the Sound Archive...")

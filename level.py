@@ -29,7 +29,9 @@ from xml.etree import ElementTree as etree
 from bytes import bytes_to_string
 import globals
 import SarcLib
-from yaz0 import decompressLIBYAZ0 as DecompYaz0
+
+from yaz0 import determineCompressionMethod
+_, DecompYaz0 = determineCompressionMethod()
 
 
 class Area:
@@ -102,16 +104,16 @@ class Area:
 
 class Level:
     def __init__(self, name):
-        self.name = ''.join(name.split('.sarc')[:-1])
+        self.name = name
         self.areas = []
         self.szsData = {}
 
-    def load(self, data):
-        self.szsData[self.name] = data
+    def load(self, files):
+        self.szsData = files
         self.szsData['levelname'] = self.name.encode('utf-8')
 
         arc = SarcLib.SARC_Archive()
-        arc.load(data)
+        arc.load(self.szsData[self.name])
 
         try:
             courseFolder = arc['course']
@@ -247,13 +249,6 @@ class Level:
 
     def save(self):
         arc = SarcLib.SARC_Archive()
-
-        if os.path.isdir(os.path.join(globals.mod_path, 'Sprites/' + self.name)):
-            for f in listdir(os.path.join(globals.mod_path, 'Sprites/' + self.name)):
-                if os.path.isfile(os.path.join(globals.mod_path, 'Sprites/%s/%s' % (self.name, f))):
-                    with open(os.path.join(globals.mod_path, 'Sprites/%s/%s' % (self.name, f)), "rb") as inf:
-                        self.szsData[f] = inf.read()
-
         self.addSpriteFiles()
 
         # Look up every tileset used in each area
@@ -275,12 +270,13 @@ class Level:
 
         # Add each tileset to our archive
         for tileset_name in tilesets_names:
-            if os.path.isfile(os.path.join(globals.mod_path, 'Stage/Texture/%s.sarc' % tileset_name)):
-                with open(os.path.join(globals.mod_path, 'Stage/Texture/%s.sarc' % tileset_name), "rb") as inf:
-                    self.szsData[tileset_name] = inf.read()
+            if tileset_name not in self.szsData:
+                if os.path.isfile(os.path.join(globals.mod_path, 'Stage/Texture/%s.szs' % tileset_name)):
+                    with open(os.path.join(globals.mod_path, 'Stage/Texture/%s.szs' % tileset_name), "rb") as inf:
+                        self.szsData[tileset_name] = DecompYaz0(inf.read())
 
-            else:
-                print("Tileset %s not found!" % tileset_name)
+                else:
+                    print("Tileset %s not found!" % tileset_name)
 
         for file in self.szsData:
             arc.addFile(SarcLib.File(file, self.szsData[file]))
